@@ -3,10 +3,49 @@ import { useAppContext } from '../Context/AppContext'
 import { useLocation } from 'react-router-dom';
 
 const Loading = () => {
-    const { navigate } = useAppContext();
+    const { navigate, axios, setCartItems } = useAppContext();
     let { search } = useLocation()
     const query = new URLSearchParams(search)
     const nextUrl = query.get('next');
+    const orderId = query.get('orderId');
+    const sessionId = query.get('session_id');
+
+    // Confirm payment succeeded before clearing the cart — arriving on this
+    // page only means Stripe redirected here, not that payment is confirmed.
+    // The backend checks the order's paid status (set by the Stripe webhook)
+    // and, if that hasn't landed yet, verifies directly with Stripe using
+    // session_id — so this doesn't depend on a webhook being configured.
+    useEffect(() => {
+        if (!orderId) return;
+
+        let cancelled = false;
+        let attempts = 0;
+
+        const pollOrderStatus = async () => {
+            while (!cancelled && attempts < 8) {
+                attempts += 1;
+                try {
+                    const { data } = await axios.get(`/api/order/status/${orderId}`, {
+                        params: sessionId ? { sessionId } : {},
+                    });
+                    if (data.success && data.isPaid) {
+                        setCartItems({});
+                        return;
+                    }
+                } catch (error) {
+                    // ignore and retry
+                }
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
+        };
+
+        pollOrderStatus();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [orderId, sessionId, axios, setCartItems]);
+
     useEffect(()=>{
         if(nextUrl){
             setTimeout(()=>{

@@ -32,11 +32,9 @@ const AllProducts = () => {
 
     {/* Product List */}
     <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mt-8 w-full'>
-      {filteredProducts
-        .filter((product) => product.inStock)
-        .map((product, index) => (
-          <ProductCard key={index} product={product} />
-        ))}
+      {filteredProducts.map((product, index) => (
+        <ProductCard key={index} product={product} />
+      ))}
     </div>
 
   </div>

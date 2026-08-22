@@ -93,7 +93,7 @@ export const placeOrderStripe = async (req, res) => {
     const session = await stripeInstance.checkout.sessions.create({
         line_items,
         mode: "payment",
-        success_url: `${origin}/loader?next=my-orders`,
+        success_url: `${origin}/loader?next=my-orders&orderId=${order._id.toString()}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cart`,
         metadata: {
             orderId: order._id.toString(),
@@ -122,7 +122,7 @@ export const stripeWebhooks = async (request, response)=>{
     );
 
   } catch (error) {
-    response.status(400).send(`webhook Error: ${error.message}`)
+    return response.status(400).send(`webhook Error: ${error.message}`)
 
   }
   //  Handle the event
@@ -172,6 +172,41 @@ export const stripeWebhooks = async (request, response)=>{
 
 
 
+
+// Get order payment status : /api/order/status/:orderId?sessionId=...
+export const getOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { sessionId } = req.query;
+    const userId = req.user.id;
+
+    let order = await Order.findOne({ _id: orderId, userId });
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+
+    // The Stripe webhook may never arrive (no webhook endpoint configured,
+    // e.g. in local dev without the Stripe CLI forwarding events), so don't
+    // rely on it alone. Ask Stripe directly whether this session was paid.
+    if (!order.isPaid && order.paymentType === "Online" && sessionId) {
+      const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const session = await stripeInstance.checkout.sessions.retrieve(sessionId);
+
+      if (
+        session.payment_status === "paid" &&
+        session.metadata?.orderId === orderId &&
+        session.metadata?.userId === userId
+      ) {
+        order = await Order.findByIdAndUpdate(orderId, { isPaid: true }, { new: true });
+        await User.findByIdAndUpdate(userId, { cartItems: {} });
+      }
+    }
+
+    return res.json({ success: true, isPaid: order.isPaid, paymentType: order.paymentType });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
 
 // Get orders by ID : /api/order/user
 

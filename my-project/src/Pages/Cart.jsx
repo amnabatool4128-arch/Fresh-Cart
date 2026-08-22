@@ -21,7 +21,7 @@ const Cart = () => {
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [showAddress, setShowAddress] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState([null]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
 
   const getCart = () => {
@@ -61,50 +61,72 @@ const Cart = () => {
   }
 
 
-  const placeOrder = async ()=>{
-    try {
-      if(!selectedAddress){
-        return toast.error("Please select an address")
-      }
-
-      // Place Order with COD
-      if (paymentOption === "COD"){
-      const {data} = await axios.post('/api/order/cod', {
-        userId: user._id,
-        items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
-        address: selectedAddress._id
-      })
-      if(data.success){
-        toast.success(data.message)
-        setCartItems({})
-        navigate('/my-orders')
-      }else{
-        toast.error(data.message)
-      }
-    }else{
-      // Place order with Stripe
-       const { data } = await axios.post("/api/order/stripe", {
-         userId: user._id,
-         items: cartArray.map((item) => ({
-           product: item._id,
-           quantity: item.quantity,
-         })),
-         address: selectedAddress._id,
-       });
-       if (data.success) {
-         window.location.replace(data.url)
-         
-       } else {
-         toast.error(data.message);
-       }
-
-    }
-    } catch (error) {
-      toast.error(error.message)
-
+  
+const placeOrder = async () => {
+  try {
+    // 1. Check login
+    if (!user) {
+      return toast.error("Please login first");
     }
 
+    // 2. Check cart
+    if (cartArray.length === 0) {
+      return toast.error("Your cart is empty");
+    }
+
+    // 2b. Check no out-of-stock items are in the cart
+    if (cartArray.some((item) => !item.inStock)) {
+      return toast.error("Remove out-of-stock items from your cart to continue");
+    }
+
+    // 3. Check address
+    if (!selectedAddress?._id) {
+      return toast.error("Please select a delivery address");
+    }
+
+    // 4. Prepare items
+    const items = cartArray.map((item) => ({
+      product: item._id,
+      quantity: item.quantity,
+    }));
+
+    // 5. COD
+    if (paymentOption === "COD") {
+      const { data } = await axios.post("/api/order/cod", {
+        items,
+        address: selectedAddress._id,
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        navigate("/my-orders");
+      } else {
+        toast.error(data.message);
+      }
+
+      return;
+    }
+
+    // 6. Online Payment / Stripe
+    const { data } = await axios.post("/api/order/stripe", {
+      items,
+      address: selectedAddress._id,
+    });
+
+    if (data.success && data.url) {
+      window.location.href = data.url;
+    } else {
+      toast.error(data.message || "Unable to start payment");
+    }
+  } catch (error) {
+    console.error("Place order error:", error);
+    toast.error(
+      error.response?.data?.message || error.message || "Something went wrong"
+    );
   }
+};
+
 
 
   useEffect(() => {
@@ -160,6 +182,9 @@ const Cart = () => {
 
               <div>
                 <p className="hidden md:block font-semibold">{product.name}</p>
+                {!product.inStock && (
+                  <p className="text-red-500 text-xs font-medium">Out of Stock</p>
+                )}
 
                 <div className="font-normal text-gray-500/70">
                   <p>
@@ -170,10 +195,11 @@ const Cart = () => {
                     <p className="cursor-pointer">Qty:</p>
                     <select
                       value={cartItems[product._id] || 1}
+                      disabled={!product.inStock}
                       onChange={(e) =>
                         updateCartItem(product._id, Number(e.target.value))
                       }
-                      className="outline-none"
+                      className="outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {Array(product.quantity > 9 ? product.quantity : 9)
                         .fill("")

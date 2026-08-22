@@ -4,32 +4,32 @@ import { useAppContext } from '../Context/AppContext'
 import toast from 'react-hot-toast'
 
 // Input Field Component
-const InputField = ({type,placeholder, name, handleChange, address})=>(
-    <input className='w-full px-2 py-2.5 border border-gray-500/30 rounded outline-none 
-    text-gray-500 focus:border-primary transition' type={type} 
-      placeholder={placeholder}
-      onChange={handleChange}
-      name={name}
-      value={address[name]}
-      required
-    />
-)
+const InputField = ({ type, placeholder, name, handleChange, address }) => (
+  <input
+    className="w-full px-2 py-2.5 border border-gray-500/30 rounded outline-none text-gray-500 focus:border-primary transition"
+    type={type}
+    placeholder={placeholder}
+    onChange={handleChange}
+    name={name}
+    value={address[name] || ""}
+    required
+  />
+);
 
 const AddAddress = () => {
   const {axios, user, navigate}  = useAppContext()
 
   const [address, setAddress] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    street: '',
-    city: '',
-    zipCode: '',
-    country: '',
-    phone: '',
-
-  })
-
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
   const handleChange = (e)=>{
     const { name, value } = e.target;
 

@@ -31,6 +31,9 @@ const ProductCard = ({product}) => {
           <p className="text-gray-700 font-medium text-lg truncate w-full">
             {product.name}
           </p>
+          {!product.inStock && (
+            <p className="text-red-500 text-xs font-medium">Out of Stock</p>
+          )}
           <div className="flex items-center gap-0.5">
             {Array(5)
               .fill("")
@@ -59,7 +62,14 @@ const ProductCard = ({product}) => {
               }}
               className="text-primary"
             >
-              {!cartItems[product._id] ? (
+              {!product.inStock ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center cursor-not-allowed gap-1 bg-gray-100 border border-gray-300 md:w-[80px] w-[64px] h-[34px] rounded text-gray-400 font-medium text-xs"
+                >
+                  Out of Stock
+                </button>
+              ) : !cartItems[product._id] ? (
                 <button
                   className="flex items-center justify-center cursor-pointer gap-1 bg-primary/10 border border-primary-40 md:w-[80px] w-[64px] h-[34px] rounded text-primary-600 font-medium"
                   onClick={() => addToCart(product._id)}

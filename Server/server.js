@@ -21,14 +21,28 @@ const port = process.env.PORT || 3001;
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3002",
+  "http://localhost:3003",
   "https://fresh-cart-project-beta.vercel.app",
 ];
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }),
+);
 
 app.post ('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
+
+app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => res.send("API is Working"));
 
