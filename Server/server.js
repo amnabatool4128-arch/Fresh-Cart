@@ -24,6 +24,7 @@ const allowedOrigins = [
   "http://localhost:3002",
   "http://localhost:3003",
   "https://fresh-cart-project-beta.vercel.app",
+  "https://fresh-cart-liard-two.vercel.app",
 ];
 
 app.use(
