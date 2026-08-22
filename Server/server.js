@@ -40,7 +40,7 @@ app.use(
   }),
 );
 
-app.post ('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
+app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -57,10 +57,8 @@ app.use("/api/order", orderRouter);
 const startServer = async () => {
   await connectDB();
   connectCloudinary();
-
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
 };
 
 startServer();
+
+export default app;
