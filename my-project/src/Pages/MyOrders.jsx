@@ -1,83 +1,122 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useAppContext } from '../Context/AppContext';
+import EmptyState from '../Components/EmptyState';
+import Badge from '../Components/Badge';
+import { FiPackage } from 'react-icons/fi';
 
 
 const MyOrders = () => {
     const [myOrders, setMyOrders] = useState([])
-    const {currency, axios, user} = useAppContext();
+    const [loading, setLoading] = useState(true)
+    const {currency, axios, user, navigate} = useAppContext();
 
     const fetchMyOrders = useCallback(async () => {
       try {
         const { data } = await axios.get("/api/order/user");
 
-        console.log("Data: ", data)
-
         if(data.success){
           setMyOrders(data.orders);
-          console.log("My Orders: ",myOrders);
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     }, [axios]);
     useEffect(() => {
       if (user) {
         fetchMyOrders();
+      } else {
+        setLoading(false);
       }
     }, [user, fetchMyOrders]);
-        
-   
+
+
   return (
-    <div>
-      <div className="mt-16 pb-16">
-        <p className="text-2xl font-medium uppercase text-gray-900 dark:text-white">My Orders</p>
-        <div className="w-16 h-0.5 bg-primary rounded-full"></div>
+    <div className="mt-16 mb-16">
+      <div className="mb-8">
+        <p className="text-2xl font-semibold text-gray-900 dark:text-white">My Orders</p>
+        <div className="w-16 h-0.5 bg-primary rounded-full mt-1"></div>
       </div>
-      {myOrders.map((order, index) => (
-        <div key={index} className="border border-gray-200 dark:border-slate-700 rounded-lg mb-10 p-4 py-5 max-w-4xl bg-white dark:bg-slate-800">
-          <p className="flex justify-between md:items-center text-gray-400 dark:text-slate-500 md:font-medium max-md:flex-col">
-            <span>OrderId : {order._id}</span>
-            <span>Payment : {order.paymentType}</span>
-            <span>
-              Total Amount : {currency}
-              {order.amount}
-            </span>
-          </p>
-          {order.items.map((item, index) => (
+
+      {loading ? (
+        <div className="flex justify-center items-center py-24">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 dark:border-slate-700 border-t-primary" />
+        </div>
+      ) : myOrders.length === 0 ? (
+        <EmptyState
+          icon={<FiPackage size={48} />}
+          title="No orders yet"
+          subtitle="When you place an order, it will show up here."
+          actionLabel="Start Shopping"
+          onAction={() => navigate("/products")}
+        />
+      ) : (
+        <div className="space-y-6">
+          {myOrders.map((order, index) => (
             <div
-              key={index}
-              className={`relative bg-white dark:bg-slate-800 text-gray-500/70 dark:text-slate-400 ${
-                order.items.length !== index + 1 ? "border-b border-gray-200 dark:border-slate-700" : ""
-              } flex flex-col md:flex-row md:items-center justify-between p-4 py-5 md:gap-16 w-full max-w-4xl`}
+              key={order._id || index}
+              className="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800 max-w-4xl"
             >
-              <div className="flex items-center mb-4 md:mb-0">
-                <div className="bg-primary/10 p-4 rounded-lg">
-                  <img
-                    src={item?.product?.image?.[0]}
-                    alt=""
-                    className="w-16 h-16"
-                  />
-                </div>
-                <div className="ml-4">
-                  <h2 className="text-xl font-medium text-gray-800 dark:text-white">
-                    {item?.product?.name}
-                  </h2>
-                  <p>category: {item?.product?.category}</p>
+              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 bg-surface dark:bg-slate-700/40 border-b border-gray-200 dark:border-slate-700">
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  Order ID: <span className="text-gray-700 dark:text-slate-300 font-medium">{order._id}</span>
+                </p>
+                <div className="flex items-center flex-wrap gap-2">
+                  <Badge variant="success">{order.status}</Badge>
+                  <Badge variant={order.isPaid ? "success" : "warning"}>
+                    {order.isPaid ? "Paid" : "Pending Payment"}
+                  </Badge>
+                  <Badge variant="neutral">{order.paymentType}</Badge>
                 </div>
               </div>
-              <div className="flex flex-col justify-center md:ml-8 mb-4 md:mb-0">
-                <p>Quantity: {item.quantity || "1"}</p>
-                <p>Status: {order.status}</p>
-                <p>Date: {new Date(order.createdAt).toLocaleString()}</p>
+
+              {order.items.map((item, itemIndex) => (
+                <div
+                  key={itemIndex}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 ${
+                    order.items.length !== itemIndex + 1 ? "border-b border-gray-100 dark:border-slate-700" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-16 h-16 shrink-0 flex items-center justify-center bg-surface dark:bg-slate-900 rounded-lg overflow-hidden">
+                      <img
+                        src={item?.product?.image?.[0]}
+                        alt=""
+                        className="w-full h-full object-contain p-1.5"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-white truncate">
+                        {item?.product?.name}
+                      </p>
+                      <p className="text-sm text-gray-400 dark:text-slate-500">{item?.product?.category}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10 text-sm">
+                    <p className="text-gray-500 dark:text-slate-400">Qty: {item.quantity || "1"}</p>
+                    <p className="text-gray-500 dark:text-slate-400 hidden sm:block">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {currency}
+                      {item.product.offerPrice * item.quantity}
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex justify-end px-5 py-3 bg-surface dark:bg-slate-700/40 border-t border-gray-200 dark:border-slate-700">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Total: {currency}
+                  {order.amount}
+                </p>
               </div>
-              <p className="text-primary text-lg font-medium">
-                Amount: {currency}
-                {item.product.offerPrice * item.quantity}
-              </p>
             </div>
           ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

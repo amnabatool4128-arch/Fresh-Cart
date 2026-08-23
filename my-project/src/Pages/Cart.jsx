@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../Context/AppContext";
 import { assets } from "../assets/assets";
+import QuantityStepper from "../Components/QuantityStepper";
+import EmptyState from "../Components/EmptyState";
+import { FiShoppingCart } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 const Cart = () => {
@@ -8,9 +11,9 @@ const Cart = () => {
     products,
     currency,
     cartItems,
+    addToCart,
     removeFromCart,
     getCartCount,
-    updateCartItem,
     navigate,
     getCartAmount,
     axios,
@@ -30,7 +33,7 @@ const Cart = () => {
     for (const key in cartItems) {
       const product = products.find((item) => item._id === key);
 
-      if (product) {
+      if (product && cartItems[key] > 0) {
         tempArray.push({
           ...product,
           quantity: cartItems[key],
@@ -40,6 +43,15 @@ const Cart = () => {
 
     setCartArray(tempArray);
   };
+
+  // Removes a line item entirely, unlike removeFromCart (context) which only decrements by one.
+  const removeItemEntirely = (itemId) => {
+    const cartData = structuredClone(cartItems);
+    delete cartData[itemId];
+    setCartItems(cartData);
+    toast.success("Removed from Cart");
+  };
+
   const getuserAddress = async ()=>{
     try {
       const {data} = await axios.get('/api/address/get');
@@ -52,7 +64,7 @@ const Cart = () => {
       }else{
         toast.error(data.message)
       }
-      
+
 
     } catch (error) {
       toast.error(error.message)
@@ -61,7 +73,7 @@ const Cart = () => {
   }
 
 
-  
+
 const placeOrder = async () => {
   try {
     // 1. Check login
@@ -142,28 +154,41 @@ const placeOrder = async () => {
 
   }, [user])
 
-  return products.length > 0 && cartItems ? (
-    <div className="flex flex-col md:flex-row mt-16 gap-10">
+  if (products.length === 0) {
+    return (
+      <div className="flex justify-center items-center py-32">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 dark:border-slate-700 border-t-primary" />
+      </div>
+    );
+  }
+
+  if (cartArray.length === 0) {
+    return (
+      <EmptyState
+        icon={<FiShoppingCart size={56} />}
+        title="Your cart is empty"
+        subtitle="Looks like you haven't added anything yet. Explore fresh picks and get shopping."
+        actionLabel="Start Shopping"
+        onAction={() => navigate("/products")}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col md:flex-row mt-16 mb-16 gap-10">
       {/* LEFT */}
       <div className="flex-1 max-w-4xl">
-        <h1 className="text-3xl font-medium mb-6 text-gray-900 dark:text-white">
+        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">
           Shopping Cart{" "}
-          <span className="text-sm text-primary">{getCartCount()} items</span>
+          <span className="text-sm font-normal text-primary">{getCartCount()} items</span>
         </h1>
 
-        <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 dark:text-slate-400 text-base font-medium pb-3 border-b border-gray-200 dark:border-slate-700">
-          <p className="text-left">Product Details</p>
-          <p className="text-center">Subtotal</p>
-          <p className="text-center">Action</p>
-        </div>
-
-        {cartArray.map((product, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 dark:text-slate-400 items-center text-sm md:text-base font-medium pt-4 border-b border-gray-100 dark:border-slate-800 pb-4"
-          >
-            {/* PRODUCT */}
-            <div className="flex items-center md:gap-6 gap-3 cursor-pointer">
+        <div className="mt-6 divide-y divide-gray-100 dark:divide-slate-800 border-y border-gray-200 dark:border-slate-700">
+          {cartArray.map((product) => (
+            <div
+              key={product._id}
+              className="flex items-center gap-4 py-5"
+            >
               <div
                 onClick={() => {
                   navigate(
@@ -171,69 +196,62 @@ const placeOrder = async () => {
                   );
                   window.scrollTo(0, 0);
                 }}
-                className="w-24 h-24 flex items-center justify-center border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 rounded-lg overflow-hidden"
+                className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer"
               >
                 <img
-                  className="max-w-full h-full object-cover"
+                  className="w-full h-full object-contain p-2"
                   src={product.image[0]}
                   alt={product.name}
                 />
               </div>
 
-              <div>
-                <p className="hidden md:block font-semibold text-gray-900 dark:text-white">{product.name}</p>
+              <div className="flex-1 min-w-0">
+                <p
+                  onClick={() => {
+                    navigate(
+                      `/products/${product.category.toLowerCase()}/${product._id}`,
+                    );
+                    window.scrollTo(0, 0);
+                  }}
+                  className="font-medium text-gray-900 dark:text-white truncate cursor-pointer hover:text-primary transition-colors"
+                >
+                  {product.name}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
+                  Weight: {product.weight || "N/A"}
+                </p>
                 {!product.inStock && (
-                  <p className="text-red-500 dark:text-red-400 text-xs font-medium">Out of Stock</p>
+                  <p className="text-red-500 dark:text-red-400 text-xs font-medium mt-1">Out of Stock</p>
                 )}
 
-                <div className="font-normal text-gray-500/70 dark:text-slate-500">
-                  <p>
-                    weight: <span>{product.weight || "N/A"}</span>
-                  </p>
-
-                  <div className="flex items-center">
-                    <p className="cursor-pointer">Qty:</p>
-                    <select
-                      value={cartItems[product._id] || 1}
-                      disabled={!product.inStock}
-                      onChange={(e) =>
-                        updateCartItem(product._id, Number(e.target.value))
-                      }
-                      className="outline-none bg-transparent dark:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {Array(product.quantity > 9 ? product.quantity : 9)
-                        .fill("")
-                        .map((_, i) => (
-                          <option key={i} value={i + 1} className="dark:bg-slate-800">
-                            {i + 1}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                <div className="flex items-center gap-4 mt-3">
+                  <QuantityStepper
+                    quantity={product.quantity}
+                    onIncrease={() => addToCart(product._id)}
+                    onDecrease={() => removeFromCart(product._id)}
+                    size="sm"
+                  />
+                  <button
+                    onClick={() => removeItemEntirely(product._id)}
+                    aria-label={`Remove ${product.name} from cart`}
+                    className="cursor-pointer rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
+                  >
+                    <img
+                      src={assets.remove_icon}
+                      alt=""
+                      className="w-5 h-5 dark:invert opacity-70"
+                    />
+                  </button>
                 </div>
               </div>
+
+              <p className="shrink-0 font-semibold text-gray-900 dark:text-white text-sm sm:text-base">
+                {currency}
+                {product.offerPrice * product.quantity}
+              </p>
             </div>
-
-            {/* PRICE */}
-            <p className="text-center text-gray-900 dark:text-slate-200">
-              {currency}
-              {product.offerPrice * product.quantity}
-            </p>
-
-            {/* REMOVE */}
-            <button
-              onClick={() => removeFromCart(product._id)}
-              aria-label={`Remove ${product.name} from cart`}
-              className="cursor-pointer mx-auto rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
-            >
-              <img
-                src={assets.remove_icon}
-                alt=""
-                className="inline-block w-6 h-6 dark:invert"
-              />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
 
         {/* CONTINUE SHOPPING */}
         <button
@@ -253,16 +271,16 @@ const placeOrder = async () => {
       </div>
 
       {/* RIGHT */}
-      <div className="max-w-[360px] w-full bg-surface dark:bg-slate-800 rounded-xl p-5 max-md:mt-4 border border-gray-200 dark:border-slate-700 h-fit">
-        <h2 className="text-xl font-medium text-gray-900 dark:text-white">Order Summary</h2>
+      <div className="max-w-[380px] w-full bg-surface dark:bg-slate-800 rounded-xl p-5 md:p-6 max-md:mt-4 border border-gray-200 dark:border-slate-700 h-fit">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Order Summary</h2>
         <hr className="border-gray-200 dark:border-slate-700 my-5" />
 
         {/* ADDRESS */}
         <div className="mb-6">
-          <p className="text-sm font-medium uppercase text-gray-700 dark:text-slate-300">Delivery Address</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-slate-300">Delivery Address</p>
 
           <div className="relative mt-2">
-            <p className="text-gray-500 dark:text-slate-400">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               {selectedAddress
                 ? `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country}`
                 : "No address found"}
@@ -270,13 +288,13 @@ const placeOrder = async () => {
 
             <button
               onClick={() => setShowAddress(!showAddress)}
-              className="text-primary hover:underline cursor-pointer"
+              className="text-primary text-sm font-medium hover:underline cursor-pointer mt-1"
             >
               Change
             </button>
 
             {showAddress && (
-              <div className="absolute top-12 py-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg shadow-card-hover w-full z-10">
+              <div className="absolute top-14 py-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg shadow-card-hover w-full z-10">
                 {addresses.map((address, index) => (
                   <p
                     key={index}
@@ -284,7 +302,7 @@ const placeOrder = async () => {
                       setSelectedAddress(address);
                       setShowAddress(false);
                     }}
-                    className="p-2 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                    className="p-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                   >
                     {address.street}, {address.city}, {address.state},{" "}
                     {address.country}
@@ -293,7 +311,7 @@ const placeOrder = async () => {
 
                 <p
                   onClick={() => navigate("/add-address")}
-                  className="text-primary text-center cursor-pointer p-2 hover:bg-primary/10 transition-colors"
+                  className="text-primary text-sm text-center cursor-pointer p-2.5 hover:bg-primary/10 transition-colors"
                 >
                   Add address
                 </p>
@@ -302,12 +320,12 @@ const placeOrder = async () => {
           </div>
 
           {/* PAYMENT */}
-          <p className="text-sm font-medium uppercase mt-6 text-gray-700 dark:text-slate-300">Payment Method</p>
+          <p className="text-xs font-semibold uppercase tracking-wide mt-6 text-gray-700 dark:text-slate-300">Payment Method</p>
 
           <select
             value={paymentOption}
             onChange={(e) => setPaymentOption(e.target.value)}
-            className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 mt-2 outline-none focus:border-primary/50 transition-colors"
+            className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 mt-2 text-sm outline-none focus:border-primary transition-colors"
           >
             <option value="COD">Cash On Delivery</option>
             <option value="Online">Online Payment</option>
@@ -317,7 +335,7 @@ const placeOrder = async () => {
         <hr className="border-gray-200 dark:border-slate-700" />
 
         {/* TOTAL */}
-        <div className="text-gray-500 dark:text-slate-400 mt-4 space-y-2">
+        <div className="text-sm text-gray-500 dark:text-slate-400 mt-4 space-y-2">
           <p className="flex justify-between">
             <span>Price</span>
             <span>
@@ -328,7 +346,7 @@ const placeOrder = async () => {
 
           <p className="flex justify-between">
             <span>Shipping Fee</span>
-            <span className="text-primary">Free</span>
+            <span className="text-primary font-medium">Free</span>
           </p>
           <p className="flex justify-between">
             <span>Tax (2%)</span>
@@ -338,8 +356,8 @@ const placeOrder = async () => {
             </span>
           </p>
 
-          <p className="flex justify-between font-medium text-gray-900 dark:text-white">
-            <span>Total Amount:</span>
+          <p className="flex justify-between items-center pt-3 mt-1 border-t border-gray-200 dark:border-slate-700 font-semibold text-base text-gray-900 dark:text-white">
+            <span>Total Amount</span>
             <span>
               {currency}
               {getCartAmount() + (getCartAmount() * 2) / 100}
@@ -355,7 +373,7 @@ const placeOrder = async () => {
         </button>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default Cart;

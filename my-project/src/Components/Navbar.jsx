@@ -130,20 +130,25 @@ const Navbar = () => {
                 alt=""
               />
 
-              <ul className="absolute hidden group-hover:block top-11 right-0 bg-white dark:bg-slate-800 shadow-card-hover ring-1 ring-gray-100 dark:ring-slate-700 py-1.5 w-40 rounded-lg text-sm z-40 overflow-hidden">
-                <li
-                  onClick={() => navigate("my-orders")}
-                  className="px-4 py-2.5 text-gray-700 dark:text-slate-200 hover:bg-surface dark:hover:bg-slate-700 cursor-pointer transition-colors"
-                >
-                  My Orders
-                </li>
-                <li
-                  onClick={logout}
-                  className="px-4 py-2.5 text-gray-700 dark:text-slate-200 hover:bg-surface dark:hover:bg-slate-700 cursor-pointer transition-colors"
-                >
-                  Logout
-                </li>
-              </ul>
+              {/* top-9 + pt-2 keeps this flush against the avatar (no dead zone the
+                  cursor can slip through) while pt-2 preserves the original visual
+                  gap above the menu, so group-hover never drops between the two. */}
+              <div className="absolute hidden group-hover:block top-9 right-0 pt-2 w-40 z-40">
+                <ul className="bg-white dark:bg-slate-800 shadow-card-hover ring-1 ring-gray-100 dark:ring-slate-700 py-1.5 rounded-lg text-sm overflow-hidden">
+                  <li
+                    onClick={() => navigate("my-orders")}
+                    className="px-4 py-2.5 text-gray-700 dark:text-slate-200 hover:bg-surface dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                  >
+                    My Orders
+                  </li>
+                  <li
+                    onClick={logout}
+                    className="px-4 py-2.5 text-gray-700 dark:text-slate-200 hover:bg-surface dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
             </div>
           )}
         </div>

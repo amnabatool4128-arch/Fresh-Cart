@@ -12,6 +12,10 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const product = products.find((item) => item._id === id);
+  const discountPercent =
+    product && product.price > product.offerPrice
+      ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
+      : 0;
 
   useEffect(() => {
     if (products.length > 0 && product) {
@@ -56,7 +60,12 @@ const ProductDetails = () => {
               ))}
             </div>
 
-            <div className="border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 max-w-100 rounded-lg overflow-hidden">
+            <div className="relative border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 max-w-100 rounded-lg overflow-hidden">
+              {discountPercent > 0 && product.inStock && (
+                <span className="absolute top-3 left-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-primary text-xs font-semibold px-2 py-1 rounded-md z-10">
+                  -{discountPercent}%
+                </span>
+              )}
               <img
                 src={thumbnail}
                 alt=""
@@ -85,16 +94,21 @@ const ProductDetails = () => {
               <p className="text-base ml-2 text-gray-500 dark:text-slate-400">(4)</p>
             </div>
 
-            <div className="mt-6">
-              <p className="text-gray-500/70 dark:text-slate-500 line-through">
-                MRP: {currency} {product.price}
-              </p>
-              <p className="text-2xl font-medium text-gray-900 dark:text-white">
-                MRP: {currency}
+            <div className="mt-6 flex items-end gap-3">
+              <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+                {currency}
                 {product.offerPrice}
               </p>
-              <span className="text-gray-500/70 dark:text-slate-500">(inclusive of all taxes)</span>
+              {discountPercent > 0 && (
+                <p className="text-gray-500/70 dark:text-slate-500 line-through mb-1">
+                  {currency} {product.price}
+                </p>
+              )}
+              {discountPercent > 0 && (
+                <span className="text-primary text-sm font-semibold mb-1">-{discountPercent}%</span>
+              )}
             </div>
+            <span className="text-gray-500/70 dark:text-slate-500 text-xs">(inclusive of all taxes)</span>
 
             <p className="text-base font-medium mt-6 text-gray-900 dark:text-white">About Product</p>
             <ul className="list-disc ml-4 text-gray-500/70 dark:text-slate-400">
