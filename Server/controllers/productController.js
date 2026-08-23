@@ -68,6 +68,40 @@ try {
 
 }
 
+const deleteFromCloudinaryByUrl = async (url) => {
+  const match = typeof url === "string" && url.match(/\/upload\/(?:v\d+\/)?([^./]+)\.\w+(?:\?.*)?$/);
+  if (!match) return;
+  await cloudinary.uploader.destroy(match[1]);
+};
+
+// Delete Product : /api/product/delete/:id
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    if (Array.isArray(product.image)) {
+      await Promise.all(
+        product.image.map((url) =>
+          deleteFromCloudinaryByUrl(url).catch((error) =>
+            console.log("Cloudinary delete failed for", url, ":", error.message),
+          ),
+        ),
+      );
+    }
+
+    return res.json({ success: true, message: "Product Deleted" });
+  } catch (error) {
+    console.log(error.message);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 // Change Product inStock : /api/product/stock
 export const changeStock = async (req, res)=>{
     try {

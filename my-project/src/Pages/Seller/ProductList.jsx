@@ -1,5 +1,6 @@
 import React from 'react'
 import { useAppContext } from '../../Context/AppContext';
+import { assets } from '../../assets/assets';
 import toast from 'react-hot-toast';
 
 const ProductList = () => {
@@ -20,7 +21,22 @@ const ProductList = () => {
         toast.error(error.message);
     }
   };
-  
+
+  const deleteProductHandler = async (id) => {
+    if (!window.confirm("Permanently delete this product? This cannot be undone.")) return;
+    try {
+      const { data } = await axios.delete(`/api/product/delete/${id}`);
+      if (data.success) {
+        toast.success(data.message);
+        fetchProducts();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
 
   
     return (
@@ -35,6 +51,7 @@ const ProductList = () => {
                                 <th className="px-4 py-3 font-semibold truncate">Category</th>
                                 <th className="px-4 py-3 font-semibold truncate hidden md:block">Selling Price</th>
                                 <th className="px-4 py-3 font-semibold truncate">In Stock</th>
+                                <th className="px-4 py-3 font-semibold truncate">Action</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm text-gray-500">
@@ -55,6 +72,11 @@ const ProductList = () => {
                                             <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
                                             <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
                                         </label>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <button onClick={() => deleteProductHandler(product._id)} className="cursor-pointer">
+                                            <img src={assets.remove_icon} alt="delete" className="inline-block w-5 h-5" />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
