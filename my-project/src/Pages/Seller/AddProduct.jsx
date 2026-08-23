@@ -55,11 +55,11 @@ const AddProduct = () => {
   return (
     <div
       className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col
-     justify-between"
+     justify-between bg-white dark:bg-slate-900"
     >
       <form
         onSubmit={onSubmitHandler}
-        className="md:p-10 p-4 space-y-5 max-w-lg"
+        className="md:p-10 p-4 space-y-5 max-w-lg text-gray-800 dark:text-slate-200"
       >
         <div>
           <p className="text-base font-medium">Product Image</p>
@@ -80,7 +80,7 @@ const AddProduct = () => {
                     hidden
                   />
                   <img
-                    className="max-w-24 cursor-pointer"
+                    className="max-w-24 cursor-pointer rounded-lg border border-gray-200 dark:border-slate-600"
                     src={
                       files[index]
                         ? URL.createObjectURL(files[index])
@@ -104,7 +104,7 @@ const AddProduct = () => {
             id="product-name"
             type="text"
             placeholder="Type here"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            className="outline-none md:py-2.5 py-2 px-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-100 focus:border-primary transition-colors"
             required
           />
         </div>
@@ -120,7 +120,7 @@ const AddProduct = () => {
             value={description}
             id="product-description"
             rows={4}
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
+            className="outline-none md:py-2.5 py-2 px-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-100 focus:border-primary transition-colors resize-none"
             placeholder="Type here"
           ></textarea>
         </div>
@@ -132,11 +132,11 @@ const AddProduct = () => {
             onChange={(e) => setCategory(e.target.value)}
             value={category}
             id="category"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+            className="outline-none md:py-2.5 py-2 px-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-100 focus:border-primary transition-colors"
           >
             <option value="">Select Category</option>
             {categories.map((item, index) => (
-              <option key={index} value={item.text} className='text-black-300'>
+              <option key={index} value={item.text}>
                 {item.text}
               </option>
             ))}
@@ -153,7 +153,7 @@ const AddProduct = () => {
               id="product-price"
               type="number"
               placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              className="outline-none md:py-2.5 py-2 px-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-100 focus:border-primary transition-colors"
               required
             />
           </div>
@@ -167,12 +167,12 @@ const AddProduct = () => {
               id="offer-price"
               type="number"
               placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              className="outline-none md:py-2.5 py-2 px-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-100 focus:border-primary transition-colors"
               required
             />
           </div>
         </div>
-        <button className="px-8 py-2.5 bg-primary hover:bg-primary-dull text-white font-medium rounded cursor-pointer">
+        <button className="px-8 py-2.5 bg-primary hover:bg-primary-dull text-white font-medium rounded-lg transition-colors cursor-pointer">
           ADD
         </button>
       </form>

@@ -38,13 +38,13 @@ const SellerLogin = () => {
       <form
         onSubmit={onSubmitHandler}
         className="min-h-screen flex
-     items-center text-sm text-gray-600"
+     items-center text-sm text-gray-600 dark:text-slate-400 bg-white dark:bg-slate-900"
       >
         <div
-          className="flex flex-col gap-5 m-auto items-center p-8 py-12 min-w-80 sm:min-w-88 
-    rounded-lg shadow-xl border border-gray-200"
+          className="flex flex-col gap-5 m-auto items-center p-8 py-12 min-w-80 sm:min-w-88
+    rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
         >
-          <p className="text-2xl font-medium m-auto">
+          <p className="text-2xl font-medium m-auto text-gray-900 dark:text-white">
             <span className="text-primary">Seller</span> Login
           </p>
           <div className="w-full">
@@ -54,22 +54,22 @@ const SellerLogin = () => {
               value={email}
               type="email"
               placeholder="enter your email"
-              className="border border-gray-200 rounded w-full p-2 mt-1 outline-primary"
+              className="border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-100 rounded-lg w-full p-2 mt-1 outline-none focus:border-primary transition-colors"
               required
             />
           </div>
           <div className="w-full">
             <p>Password</p>
             <input
-              onChange={(e) => setPassword(e.target.value)} 
+              onChange={(e) => setPassword(e.target.value)}
               value={password}
               type="password"
               placeholder="enter your password"
-              className="border border-gray-200 rounded w-full p-2 mt-1 outline-primary"
+              className="border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-100 rounded-lg w-full p-2 mt-1 outline-none focus:border-primary transition-colors"
               required
             />
           </div>
-          <button className="bg-primary text-white w-full py-2 rounded-md cursor-pointer">
+          <button className="bg-primary hover:bg-primary-dull transition-colors text-white w-full py-2.5 rounded-lg font-medium cursor-pointer">
             Login
           </button>
         </div>

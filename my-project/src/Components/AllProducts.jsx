@@ -24,7 +24,7 @@ const AllProducts = () => {
 
     {/* Heading */}
     <div className='flex flex-col items-start w-full'>
-      <p className='text-xl sm:text-2xl font-medium uppercase'>
+      <p className='text-xl sm:text-2xl font-medium uppercase text-gray-900 dark:text-white'>
         All Products
       </p>
       <div className='w-16 sm:w-20 h-0.5 bg-primary mt-2 rounded-full'></div>

@@ -32,9 +32,9 @@ const ProductDetails = () => {
   return (
     product && (
       <div className="mt-12">
-        <p>
-          <Link to={"/"}>Home</Link> /<Link to={"/products"}> Products</Link> /
-          <Link to={`/products/${product.category.toLowerCase()}`}>
+        <p className="text-gray-500 dark:text-slate-400">
+          <Link to={"/"} className="hover:text-primary transition-colors">Home</Link> /<Link to={"/products"} className="hover:text-primary transition-colors"> Products</Link> /
+          <Link to={`/products/${product.category.toLowerCase()}`} className="hover:text-primary transition-colors">
             {product.category}
           </Link>{" "}
           /<span className="text-primary"> {product.name}</span>
@@ -47,14 +47,16 @@ const ProductDetails = () => {
                 <div
                   key={index}
                   onClick={() => setThumbnail(image)}
-                  className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer"
+                  className={`border max-w-24 rounded-lg overflow-hidden cursor-pointer transition-colors ${
+                    thumbnail === image ? "border-primary" : "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600"
+                  }`}
                 >
                   <img src={image} alt="" />
                 </div>
               ))}
             </div>
 
-            <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
+            <div className="border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 max-w-100 rounded-lg overflow-hidden">
               <img
                 src={thumbnail}
                 alt=""
@@ -64,9 +66,9 @@ const ProductDetails = () => {
           </div>
 
           <div className="text-sm w-full md:w-1/2">
-            <h1 className="text-3xl font-medium">{product.name}</h1>
+            <h1 className="text-3xl font-medium text-gray-900 dark:text-white">{product.name}</h1>
             {!product.inStock && (
-              <p className="text-red-500 font-medium mt-1">Out of Stock</p>
+              <p className="text-red-500 dark:text-red-400 font-medium mt-1">Out of Stock</p>
             )}
 
             <div className="flex items-center gap-0.5 mt-1">
@@ -80,22 +82,22 @@ const ProductDetails = () => {
                     className="md:w-4 w-3.5"
                   />
                 ))}
-              <p className="text-base ml-2">(4)</p>
+              <p className="text-base ml-2 text-gray-500 dark:text-slate-400">(4)</p>
             </div>
 
             <div className="mt-6">
-              <p className="text-gray-500/70 line-through">
+              <p className="text-gray-500/70 dark:text-slate-500 line-through">
                 MRP: {currency} {product.price}
               </p>
-              <p className="text-2xl font-medium">
+              <p className="text-2xl font-medium text-gray-900 dark:text-white">
                 MRP: {currency}
                 {product.offerPrice}
               </p>
-              <span className="text-gray-500/70">(inclusive of all taxes)</span>
+              <span className="text-gray-500/70 dark:text-slate-500">(inclusive of all taxes)</span>
             </div>
 
-            <p className="text-base font-medium mt-6">About Product</p>
-            <ul className="list-disc ml-4 text-gray-500/70">
+            <p className="text-base font-medium mt-6 text-gray-900 dark:text-white">About Product</p>
+            <ul className="list-disc ml-4 text-gray-500/70 dark:text-slate-400">
               {product.description.map((desc, index) => (
                 <li key={index}>{desc}</li>
               ))}
@@ -105,10 +107,10 @@ const ProductDetails = () => {
               <button
                 onClick={() => addToCart(product._id)}
                 disabled={!product.inStock}
-                className={`w-full py-3.5 ${
+                className={`w-full py-3.5 rounded-lg font-medium transition-colors ${
                   product.inStock
-                    ? "bg-gray-100 hover:bg-gray-200"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    ? "bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-slate-100"
+                    : "bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 cursor-not-allowed"
                 }`}
               >
                 Add to Cart
@@ -120,10 +122,10 @@ const ProductDetails = () => {
                   navigate("/cart");
                 }}
                 disabled={!product.inStock}
-                className={`w-full py-3.5 ${
+                className={`w-full py-3.5 rounded-lg font-medium transition-colors ${
                   product.inStock
                     ? "bg-primary text-white hover:bg-primary-dull"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-300 dark:bg-slate-700 text-gray-500 dark:text-slate-500 cursor-not-allowed"
                 }`}
               >
                 Buy now
@@ -134,7 +136,7 @@ const ProductDetails = () => {
 
         {/* Related Products */}
         <div className="flex flex-col items-center mt-20">
-          <p className="text-3xl font-medium">Related Products</p>
+          <p className="text-3xl font-medium text-gray-900 dark:text-white">Related Products</p>
           <div className=" w-20 h-0.5 bg-primary rounded-full mt-2"></div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6 w-full">
@@ -144,7 +146,7 @@ const ProductDetails = () => {
                 <ProductCard key={index} product={product} />
               ))}
           </div>
-          <button onClick={()=> {navigate('/products'); window.scrollTo(0,0)}} className="mx-auto cursor-pointer px-12 my-16 py-2.5 border border-primary rounded text-primary hover:bg-primary/10 transition">
+          <button onClick={()=> {navigate('/products'); window.scrollTo(0,0)}} className="mx-auto cursor-pointer px-12 my-16 py-2.5 border border-primary rounded-lg text-primary hover:bg-primary/10 transition-colors">
             See More
           </button>
         </div>

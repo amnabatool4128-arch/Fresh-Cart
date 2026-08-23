@@ -143,15 +143,15 @@ const placeOrder = async () => {
   }, [user])
 
   return products.length > 0 && cartItems ? (
-    <div className="flex flex-col md:flex-row mt-16">
+    <div className="flex flex-col md:flex-row mt-16 gap-10">
       {/* LEFT */}
       <div className="flex-1 max-w-4xl">
-        <h1 className="text-3xl font-medium mb-6">
+        <h1 className="text-3xl font-medium mb-6 text-gray-900 dark:text-white">
           Shopping Cart{" "}
           <span className="text-sm text-primary">{getCartCount()} items</span>
         </h1>
 
-        <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-medium pb-3">
+        <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 dark:text-slate-400 text-base font-medium pb-3 border-b border-gray-200 dark:border-slate-700">
           <p className="text-left">Product Details</p>
           <p className="text-center">Subtotal</p>
           <p className="text-center">Action</p>
@@ -160,7 +160,7 @@ const placeOrder = async () => {
         {cartArray.map((product, index) => (
           <div
             key={index}
-            className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3"
+            className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 dark:text-slate-400 items-center text-sm md:text-base font-medium pt-4 border-b border-gray-100 dark:border-slate-800 pb-4"
           >
             {/* PRODUCT */}
             <div className="flex items-center md:gap-6 gap-3 cursor-pointer">
@@ -171,7 +171,7 @@ const placeOrder = async () => {
                   );
                   window.scrollTo(0, 0);
                 }}
-                className="w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden"
+                className="w-24 h-24 flex items-center justify-center border border-gray-200 dark:border-slate-700 bg-surface dark:bg-slate-800 rounded-lg overflow-hidden"
               >
                 <img
                   className="max-w-full h-full object-cover"
@@ -181,12 +181,12 @@ const placeOrder = async () => {
               </div>
 
               <div>
-                <p className="hidden md:block font-semibold">{product.name}</p>
+                <p className="hidden md:block font-semibold text-gray-900 dark:text-white">{product.name}</p>
                 {!product.inStock && (
-                  <p className="text-red-500 text-xs font-medium">Out of Stock</p>
+                  <p className="text-red-500 dark:text-red-400 text-xs font-medium">Out of Stock</p>
                 )}
 
-                <div className="font-normal text-gray-500/70">
+                <div className="font-normal text-gray-500/70 dark:text-slate-500">
                   <p>
                     weight: <span>{product.weight || "N/A"}</span>
                   </p>
@@ -199,12 +199,12 @@ const placeOrder = async () => {
                       onChange={(e) =>
                         updateCartItem(product._id, Number(e.target.value))
                       }
-                      className="outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                      className="outline-none bg-transparent dark:text-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {Array(product.quantity > 9 ? product.quantity : 9)
                         .fill("")
                         .map((_, i) => (
-                          <option key={i} value={i + 1}>
+                          <option key={i} value={i + 1} className="dark:bg-slate-800">
                             {i + 1}
                           </option>
                         ))}
@@ -215,7 +215,7 @@ const placeOrder = async () => {
             </div>
 
             {/* PRICE */}
-            <p className="text-center">
+            <p className="text-center text-gray-900 dark:text-slate-200">
               {currency}
               {product.offerPrice * product.quantity}
             </p>
@@ -223,12 +223,13 @@ const placeOrder = async () => {
             {/* REMOVE */}
             <button
               onClick={() => removeFromCart(product._id)}
-              className="cursor-pointer mx-auto"
+              aria-label={`Remove ${product.name} from cart`}
+              className="cursor-pointer mx-auto rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-colors"
             >
               <img
                 src={assets.remove_icon}
-                alt="remove"
-                className="inline-block w-6 h-6"
+                alt=""
+                className="inline-block w-6 h-6 dark:invert"
               />
             </button>
           </div>
@@ -244,7 +245,7 @@ const placeOrder = async () => {
         >
           <img
             src={assets.arrow_right_icon_colored}
-            alt="arrow"
+            alt=""
             className="group-hover:-translate-x-1 transition"
           />
           Continue Shopping
@@ -252,16 +253,16 @@ const placeOrder = async () => {
       </div>
 
       {/* RIGHT */}
-      <div className="max-w-[360px] w-full bg-gray-100/40 p-5 max-md:mt-16 border border-gray-300/70">
-        <h2 className="text-xl font-medium">Order Summary</h2>
-        <hr className="border-gray-300 my-5" />
+      <div className="max-w-[360px] w-full bg-surface dark:bg-slate-800 rounded-xl p-5 max-md:mt-4 border border-gray-200 dark:border-slate-700 h-fit">
+        <h2 className="text-xl font-medium text-gray-900 dark:text-white">Order Summary</h2>
+        <hr className="border-gray-200 dark:border-slate-700 my-5" />
 
         {/* ADDRESS */}
         <div className="mb-6">
-          <p className="text-sm font-medium uppercase">Delivery Address</p>
+          <p className="text-sm font-medium uppercase text-gray-700 dark:text-slate-300">Delivery Address</p>
 
           <div className="relative mt-2">
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-slate-400">
               {selectedAddress
                 ? `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country}`
                 : "No address found"}
@@ -275,7 +276,7 @@ const placeOrder = async () => {
             </button>
 
             {showAddress && (
-              <div className="absolute top-12 py-1 bg-white border w-full">
+              <div className="absolute top-12 py-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg shadow-card-hover w-full z-10">
                 {addresses.map((address, index) => (
                   <p
                     key={index}
@@ -283,7 +284,7 @@ const placeOrder = async () => {
                       setSelectedAddress(address);
                       setShowAddress(false);
                     }}
-                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    className="p-2 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                   >
                     {address.street}, {address.city}, {address.state},{" "}
                     {address.country}
@@ -292,7 +293,7 @@ const placeOrder = async () => {
 
                 <p
                   onClick={() => navigate("/add-address")}
-                  className="text-primary text-center cursor-pointer p-2 hover:bg-primary/10"
+                  className="text-primary text-center cursor-pointer p-2 hover:bg-primary/10 transition-colors"
                 >
                   Add address
                 </p>
@@ -301,22 +302,22 @@ const placeOrder = async () => {
           </div>
 
           {/* PAYMENT */}
-          <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
+          <p className="text-sm font-medium uppercase mt-6 text-gray-700 dark:text-slate-300">Payment Method</p>
 
           <select
             value={paymentOption}
             onChange={(e) => setPaymentOption(e.target.value)}
-            className="w-full border px-3 py-2 mt-2 outline-none"
+            className="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 mt-2 outline-none focus:border-primary/50 transition-colors"
           >
             <option value="COD">Cash On Delivery</option>
             <option value="Online">Online Payment</option>
           </select>
         </div>
 
-        <hr className="border-gray-300" />
+        <hr className="border-gray-200 dark:border-slate-700" />
 
         {/* TOTAL */}
-        <div className="text-gray-500 mt-4 space-y-2">
+        <div className="text-gray-500 dark:text-slate-400 mt-4 space-y-2">
           <p className="flex justify-between">
             <span>Price</span>
             <span>
@@ -327,7 +328,7 @@ const placeOrder = async () => {
 
           <p className="flex justify-between">
             <span>Shipping Fee</span>
-            <span className="text-green-600">Free</span>
+            <span className="text-primary">Free</span>
           </p>
           <p className="flex justify-between">
             <span>Tax (2%)</span>
@@ -337,7 +338,7 @@ const placeOrder = async () => {
             </span>
           </p>
 
-          <p className="flex justify-between">
+          <p className="flex justify-between font-medium text-gray-900 dark:text-white">
             <span>Total Amount:</span>
             <span>
               {currency}
@@ -348,7 +349,7 @@ const placeOrder = async () => {
 
         <button
           onClick={placeOrder}
-          className="w-full py-3 mt-6 bg-primary text-white hover:bg-primary-dull transition"
+          className="w-full py-3 mt-6 bg-primary text-white hover:bg-primary-dull rounded-lg font-medium transition-colors"
         >
           {paymentOption === "COD" ? "Place Order" : "Proceed to Checkout"}
         </button>

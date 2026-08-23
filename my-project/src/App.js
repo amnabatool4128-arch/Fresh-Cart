@@ -24,21 +24,21 @@ import Contact from "./Pages/Contact";
 const App = () => {
 
   const isSellerPath = useLocation().pathname.includes("seller")
-  const {showUserLogin, isSeller} = useAppContext()
+  const {showUserLogin, isSeller, theme} = useAppContext()
   return (
-    <div className="text-default min-h-screen text-gray-700 bg-white pt-[100px]">
+    <div className="text-default min-h-screen text-gray-700 bg-white dark:bg-slate-900 dark:text-slate-300 pt-[84px]">
       {isSellerPath ? null : <Navbar />}
       {showUserLogin ? <Login /> : null}
 
       <Toaster
         toastOptions={{
+          style: {
+            background: theme === "dark" ? "#1e293b" : "#fff",
+            color: theme === "dark" ? "#e2e8f0" : "#374151",
+          },
           success: {
-            style: {
-              background: "#fff",
-              color: "#374151",
-            },
             iconTheme: {
-              primary: "#FF8F00",
+              primary: "#1D9A5D",
               secondary: "#FFF",
             },
           },
