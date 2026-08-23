@@ -57,6 +57,12 @@ app.use("/api/order", orderRouter);
 const startServer = async () => {
   await connectDB();
   connectCloudinary();
+
+  if (process.env.NODE_ENV !== "production") {
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  }
 };
 
 startServer();
