@@ -41,6 +41,16 @@ app.use(
   }),
 );
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("DB connection failed:", error.message);
+    return res.status(503).json({ success: false, message: "Database unavailable" });
+  }
+});
+
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 app.use(express.json());
@@ -66,6 +76,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer().catch((error) => {
+  console.error("Failed to start server:", error.message);
+});
 
 export default app;
