@@ -1,4 +1,14 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "build"
+  "outputDirectory": "build",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://fresh-cart-hy32.vercel.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
